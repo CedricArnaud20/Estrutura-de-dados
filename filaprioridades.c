@@ -1,6 +1,6 @@
 /*
-    Grupo:
-    4 periodo Eng de Software
+    Grupo 4
+    4º periodo Eng de Software
         
 */
 #include <stdio.h>
@@ -11,6 +11,8 @@ typedef struct no{
     int pri;
     struct no *proximo;
 }No;
+
+//criação da fila de prioridade para inserir o processo
 
 void inserir_com_prioridade(No **fila, int num, int pri){
     No *aux, *novo = malloc(sizeof(No));
@@ -46,6 +48,7 @@ void inserir_com_prioridade(No **fila, int num, int pri){
     else
         printf("\nErro ao alocar memoria.\n");
 }
+//remoção de processo na fila 
 
 No* remover_da_fila(No **fila){
     No *remover = NULL;
@@ -59,6 +62,8 @@ No* remover_da_fila(No **fila){
     return remover;
 }
 
+// imprimir processo na fila 
+
 void imprimir(No *fila){
     printf("\t------- FILA --------\n\t");
     while(fila){
@@ -67,6 +72,8 @@ void imprimir(No *fila){
     }
     printf("\n\t------- FIM FILA --------\n");
 }
+
+// Criação de menu para os processos 
 
 int main(){
     No *r, *fila = NULL;
