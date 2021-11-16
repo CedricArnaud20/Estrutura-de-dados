@@ -1,163 +1,107 @@
+/*
+    Grupo:
+    4 periodo Eng de Software
+        
+*/
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
-#include <string.h>
 
+typedef struct no{
+    int uid;
+    int pri;
+    struct no *proximo;
+}No;
 
-struct Aluno
-{
-    int ra;
-    char nome[50];
-};
-
-struct Item
-{
-    aluno aluno;
-    struct Item *proximo;
-};
-
-struct Fila
-{
-    Item *inicio;
-    Item *fim;
-};
-
-
-void Inicializar(Fila **fila)
-{
-    // -> Recebe a fila por referencia
-    //    para inicializá-la
-    *fila = (Fila *) malloc(sizeof(Fila));
-    (*fila)->inicio = NULL;
-    (*fila)->fim = NULL;
-}
-
-int EstaVazia(Fila *fila)
-{
-    return fila->inicio == NULL;
-}
-
-void Inserir(Fila *fila, Aluno elemento)
-{
-    Item *novo;
-    novo = (Item *)malloc(sizeof(Item));  
-
-    // -> Verifica se a memória foi alocada com sucesso
-    if (novo != NULL)
-    {
-        strcpy(novo->aluno.nome, elemento.nome);
-        novo->aluno.ra = elemento.ra;
+void inserir_com_prioridade(No **fila, int num, int pri){
+    No *aux, *novo = malloc(sizeof(No));
+    if(novo){
+        novo->uid = num;
+        novo->pri = pri;
         novo->proximo = NULL;
-
-        if(EstaVazia(fila))
-        {
-            // -> Primeiro Item da Fila.
-            fila->inicio = novo;
-            fila->fim = novo;
+        if(*fila == NULL)
+            *fila = novo;
+        else{
+            // ÃƒÂ© prioridade?
+            if(pri >= 1){
+                if((*fila)->pri != 1){ 
+                    novo->proximo = *fila; 
+                    *fila = novo;
+                }
+                else{
+                    aux = *fila;
+                    while(aux->proximo && aux->proximo->pri >= 1)
+                        aux = aux->proximo;
+                    novo->proximo = aux->proximo; 
+                    aux->proximo = novo;
+                }
+            }
+            else{
+                aux = *fila;
+                while(aux->proximo)
+                    aux = aux->proximo;
+                aux->proximo = novo;
+            }
         }
-        else
-        {
-            // -> Ultimo item da Fila
-            fila->fim->proximo = novo;
-            fila->fim=novo;
-        }
-    }
-}
-
-void Retirar(Fila *fila)
-{
-    Item *item;
-
-    if(!EstaVazia(fila))
-    {
-        item = fila->inicio;
-        fila->inicio = item->proximo;
-        free(item);
-
-        // -> Se a fila acabou devemos atualizar o final
-        if (fila->inicio == NULL)
-            fila->fim = NULL;
-    }
-}
-
-void MostrarFila(Fila *fila)
-{
-    int i = 0;
-    Item *item;
-  
-    printf("\n\n Listando...\n\n");
-    printf("---------------------------------\n");
-
-    if (EstaVazia(fila))
-    {
-        printf ("A Fila esta vazia!\n");
     }
     else
-    {      
-        item = fila->inicio;
-
-        while(item != NULL)
-        {
-            i++;
-            printf("[%i] -> %i - %s\n", i, item->aluno.ra, item->aluno.nome);
-            item = item->proximo;
-        }
-    }
-
-    printf("---------------------------------\n");
+        printf("\nErro ao alocar memoria.\n");
 }
 
+No* remover_da_fila(No **fila){
+    No *remover = NULL;
 
-void Menu()
-{
-    printf( "Digite a sua escolha: \n"
-        "    1 enfileirar elemento \n"
-        "    2 retirar da fila \n"
-        "    3 para finalizar \n"
-        "? ");
+    if(*fila){
+        remover = *fila;
+        *fila = remover->proximo;
+    }
+    else
+        printf("\tFila vazia\n");
+    return remover;
 }
 
+void imprimir(No *fila){
+    printf("\t------- FILA --------\n\t");
+    while(fila){
+        printf("%d /", fila->uid);
+        fila = fila->proximo;
+    }
+    printf("\n\t------- FIM FILA --------\n");
+}
 
-void main()
-{   
-    Fila *fila = NULL;
-    int opcao;
-    Aluno aluno;
+int main(){
+    No *r, *fila = NULL;
+    int opcao, uid;
+    int pri;
 
-    Inicializar(&fila);
-    Menu();
-    scanf("%i", &opcao);
+    do{
+        printf("\t0 - Sair\n\t1 - Inserir\n\t2 - Remover\n\t3 - Imprimir\n");
+        scanf("%d", &opcao);
 
-    while (opcao != 3)
-    {
-
-        switch (opcao)
-        {
-            case 1:
-                printf( "Digite um RA: ");
-                scanf("\n%i", &aluno.ra);
-
-                printf( "Digite um Nome: ");
-                scanf("\n%s", &aluno.nome);
-
-                Inserir(fila, aluno);
-                MostrarFila(fila);
-
-                break;
-            case 2:
-                Retirar(fila);
-                MostrarFila(fila);
-
-                break;
-
-            default:
-                printf( "Escolha invalida.\n\n");
-                Menu();
-                break;
+        switch(opcao){
+        case 1:
+            printf("Digite o UID do processo:");
+            scanf("%d", &uid);
+            printf("Digite 1 caso o processo tenha prioridade:");
+            scanf("%d", &pri);
+            inserir_com_prioridade(&fila, uid, pri);
+            break;
+        case 2:
+            r = remover_da_fila(&fila);
+            if(r){
+                printf("Removido: %d\n", r->uid);
+                free(r);
+            }
+            break;
+        case 3:
+            imprimir(fila);
+            break;
+        
+        default:
+            if(opcao != 0)
+                printf("\nOpcao invalida!\n");
         }
 
-        scanf("%i", &opcao);   
-    }
+    }while(opcao != 0);
 
-    system("pause");
+    return 0;
 }
